@@ -8,11 +8,34 @@ Module.register("MMM-Screendimmer",{
         evening: 90,
         night: 18,
         debug: false,
+        override: false,
+        overrideValue: 120,
     },
 
    start: function() {
         self = this;
         Log.info('Starting module: ' + this.name);
-        this.sendSocketNotification('INIT', this.config);
+        this.sendSocketNotification('MMM-Screendimmer_INIT', this.config);
+    },
+
+    notificationReceived: function(notification, payload, sender) {
+      	if (sender) {
+      		Log.log(this.name + " received a module notification: " + notification + " from sender: " + sender.name);
+      	} else {
+      		Log.log(this.name + " received a system notification: " + notification);
+      	}
+        if (notification === "MMM-Screendimmer_OVERRIDE") {
+            this.config.override = true;
+            if (payload > 255) payload = 255; //max brightness
+            if (payload < 13) payload = 13; //min visible brightness
+            this.config.overrideValue = payload;
+            this.sendSocketNotification("MMM-Screendimmer_UPDATE_CONFIG", this.config);
+            this.sendNotification("MMM-Screendimmer_CURRENT_VALUE", payload);
+        }
+        if (notification === "MMM-Screendimmer_RESUME") {
+            this.config.override = false;
+            this.sendSocketNotification("MMM-Screendimmer_UPDATE_CONFIG", this.config);
+        }
+
     },
 });
