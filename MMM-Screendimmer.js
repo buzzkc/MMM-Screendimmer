@@ -20,7 +20,7 @@ Module.register("MMM-Screendimmer",{
 
     notificationReceived: function(notification, payload, sender) {
       	if (sender) {
-      		SleepIQControl_Console.log(this.name + " received a module notification: " + notification + " from sender: " + sender.name);
+      		console.log(this.name + " received a module notification: " + notification + " from sender: " + sender.name);
       	} else {
       		console.log(this.name + " received a system notification: " + notification);
       	}
@@ -36,12 +36,6 @@ Module.register("MMM-Screendimmer",{
             this.config.override = false;
             this.sendSocketNotification("MMM-Screendimmer_UPDATE_CONFIG", this.config);
         }
-
-        if (notification === "MMM-Screendimmer_RESUME") {
-            this.config.override = false;
-            this.sendSocketNotification("MMM-Screendimmer_UPDATE_CONFIG", this.config);
-        }
-
     },
 
     socketNotificationReceived: function(notification, payload) {
