@@ -19,10 +19,10 @@ module.exports = NodeHelper.create({
             this.writeBacklight(config.path_to_backlight,config.overrideValue); //overide immediately
             this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.overrideValue);
         } else {
-          this.setDimmer(config);
+          this.setDimmer(self, config);
 
           setInterval(function(){
-              if(!config.overide) self.setDimmer(self, config);
+              if (!config.overide) self.setDimmer(self, config);
           }, config.query_interval);
         }
     }
