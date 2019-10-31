@@ -15,14 +15,15 @@ module.exports = NodeHelper.create({
     try {
         if (typeof config.latitude === 'undefined') { throw "Missing latitude configuration"; }
         if (typeof config.longitude === 'undefined') { throw "Missing longitude configuration"; }
-        if (confg.override) {
+        if (config.override) {
+            this.sendSocketNotification("MMM-Screendimmer_Console", config.overrideValue);
             self.writeBacklight(config.path_to_backlight,config.overrideValue); //overide immediately
             this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.overrideValue);
         }
         setInterval(function(){
             var local_time = new Date;
             var sunrisePos = SunCalc.getTimes(local_time, config.latitude, config.longitude);
-            if (confg.override) {
+            if (config.override) {
                 self.writeBacklight(config.path_to_backlight,config.overrideValue);
                 this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.overrideValue);
             } else {
