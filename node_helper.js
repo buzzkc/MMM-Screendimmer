@@ -22,7 +22,7 @@ module.exports = NodeHelper.create({
           this.setDimmer(self, config);
 
           setInterval(function(){
-              if (!config.overide) self.setDimmer(self, config);
+              self.setDimmer(self, config);
           }, config.query_interval);
         }
     }
@@ -33,32 +33,34 @@ module.exports = NodeHelper.create({
   },
 
   setDimmer: function(self, config) {
-    var local_time = new Date;
-    var sunrisePos = SunCalc.getTimes(local_time, config.latitude, config.longitude);
+    if (!config.overide) {
+      var local_time = new Date;
+      var sunrisePos = SunCalc.getTimes(local_time, config.latitude, config.longitude);
 
-    if (local_time >= sunrisePos['dawn'] && local_time < sunrisePos['sunriseEnd']) {
-        if (config.debug === true) { self.debug_log(local_time,'Entering time between dawn and sunriseEd'); }
-        self.writeBacklight(config.path_to_backlight,config.morning);
-        self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.morning);
-    }
-    if (local_time >= sunrisePos['sunriseEnd'] && local_time < sunrisePos['sunsetStart']) {
-        if (config.debug === true) { self.debug_log(local_time,'Entering time between sunriseEnd and sunsetStart'); }
-        self.writeBacklight(config.path_to_backlight,config.day);
-        self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.day);
-    }
-    if (local_time >= sunrisePos['sunsetStart'] && local_time < sunrisePos['dusk']) {
-        if (config.debug === true) { self.debug_log(local_time, 'Entering time between sunsetStart and dusk'); }
-        self.writeBacklight(config.path_to_backlight,config.evening);
-        self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.evening);
-    }
-    if (local_time >= sunrisePos['dusk']) {
-        var tomorrow = new Date();
-        var sunrisePos = SunCalc.getTimes(tomorrow.setDate(tomorrow.getDate() + 1), config.latitude, config.longitude);
-         if (local_time < sunrisePos['dawn']) {
-             if (config.debug === true) { self.debug_log(local_time,'Entering time between dusk and dawn'); }
-             self.writeBacklight(config.path_to_backlight,config.night);
-             self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.night);
-         }
+      if (local_time >= sunrisePos['dawn'] && local_time < sunrisePos['sunriseEnd']) {
+          if (config.debug === true) { self.debug_log(local_time,'Entering time between dawn and sunriseEd'); }
+          self.writeBacklight(config.path_to_backlight,config.morning);
+          self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.morning);
+      }
+      if (local_time >= sunrisePos['sunriseEnd'] && local_time < sunrisePos['sunsetStart']) {
+          if (config.debug === true) { self.debug_log(local_time,'Entering time between sunriseEnd and sunsetStart'); }
+          self.writeBacklight(config.path_to_backlight,config.day);
+          self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.day);
+      }
+      if (local_time >= sunrisePos['sunsetStart'] && local_time < sunrisePos['dusk']) {
+          if (config.debug === true) { self.debug_log(local_time, 'Entering time between sunsetStart and dusk'); }
+          self.writeBacklight(config.path_to_backlight,config.evening);
+          self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.evening);
+      }
+      if (local_time >= sunrisePos['dusk']) {
+          var tomorrow = new Date();
+          var sunrisePos = SunCalc.getTimes(tomorrow.setDate(tomorrow.getDate() + 1), config.latitude, config.longitude);
+           if (local_time < sunrisePos['dawn']) {
+               if (config.debug === true) { self.debug_log(local_time,'Entering time between dusk and dawn'); }
+               self.writeBacklight(config.path_to_backlight,config.night);
+               self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.night);
+           }
+      }
     }
   },
 
