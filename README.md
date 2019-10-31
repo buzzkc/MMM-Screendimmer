@@ -1,4 +1,4 @@
-# MMM-Screendimmer
+# MMM-Screendimmer with notifications to overide and manually set dimmer.
 > This is an extension to the [MagicMirror](https://github.com/MichMich/MagicMirror) project.  Change the brightness of your Raspberry Pi 7" display based on solar events.
 
 ## Installation
