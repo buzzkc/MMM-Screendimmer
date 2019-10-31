@@ -16,48 +16,50 @@ module.exports = NodeHelper.create({
         if (typeof config.latitude === 'undefined') { throw "Missing latitude configuration"; }
         if (typeof config.longitude === 'undefined') { throw "Missing longitude configuration"; }
         if (config.override) {
-            this.sendSocketNotification("MMM-Screendimmer_Console", config.overrideValue);
-            self.writeBacklight(config.path_to_backlight,config.overrideValue); //overide immediately
+            this.writeBacklight(config.path_to_backlight,config.overrideValue); //overide immediately
             this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.overrideValue);
-        }
-        setInterval(function(){
-            var local_time = new Date;
-            var sunrisePos = SunCalc.getTimes(local_time, config.latitude, config.longitude);
-            if (config.override) {
-                self.writeBacklight(config.path_to_backlight,config.overrideValue);
-                this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.overrideValue);
-            } else {
-                if (local_time >= sunrisePos['dawn'] && local_time < sunrisePos['sunriseEnd']) {
-                    if (config.debug === true) { self.debug_log(local_time,'Entering time between dawn and sunriseEd'); }
-                    self.writeBacklight(config.path_to_backlight,config.morning);
-                    this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.morning);
-                }
-                if (local_time >= sunrisePos['sunriseEnd'] && local_time < sunrisePos['sunsetStart']) {
-                    if (config.debug === true) { self.debug_log(local_time,'Entering time between sunriseEnd and sunsetStart'); }
-                    self.writeBacklight(config.path_to_backlight,config.day);
-                    this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.day);
-                }
-                if (local_time >= sunrisePos['sunsetStart'] && local_time < sunrisePos['dusk']) {
-                    if (config.debug === true) { self.debug_log(local_time, 'Entering time between sunsetStart and dusk'); }
-                    self.writeBacklight(config.path_to_backlight,config.evening);
-                    this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.evening);
-                }
-                if (local_time >= sunrisePos['dusk']) {
-                    var tomorrow = new Date();
-                    var sunrisePos = SunCalc.getTimes(tomorrow.setDate(tomorrow.getDate() + 1), config.latitude, config.longitude);
-                     if (local_time < sunrisePos['dawn']) {
-                         if (config.debug === true) { self.debug_log(local_time,'Entering time between dusk and dawn'); }
-                         self.writeBacklight(config.path_to_backlight,config.night);
-                         this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.night);
-                     }
-                }
-            }
-        }, config.query_interval);
+        } else {
+          this.setDimmer(config);
+
+          setInterval(function(){
+              if(!config.overide) self.setDimmer(config);
+          }, config.query_interval);
+        )
     }
     catch(err) {
         console.log(err);
     }
 
+  },
+
+  setDimmer: function(config) {
+    var local_time = new Date;
+    var sunrisePos = SunCalc.getTimes(local_time, config.latitude, config.longitude);
+
+    if (local_time >= sunrisePos['dawn'] && local_time < sunrisePos['sunriseEnd']) {
+        if (config.debug === true) { self.debug_log(local_time,'Entering time between dawn and sunriseEd'); }
+        self.writeBacklight(config.path_to_backlight,config.morning);
+        this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.morning);
+    }
+    if (local_time >= sunrisePos['sunriseEnd'] && local_time < sunrisePos['sunsetStart']) {
+        if (config.debug === true) { self.debug_log(local_time,'Entering time between sunriseEnd and sunsetStart'); }
+        self.writeBacklight(config.path_to_backlight,config.day);
+        this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.day);
+    }
+    if (local_time >= sunrisePos['sunsetStart'] && local_time < sunrisePos['dusk']) {
+        if (config.debug === true) { self.debug_log(local_time, 'Entering time between sunsetStart and dusk'); }
+        self.writeBacklight(config.path_to_backlight,config.evening);
+        this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.evening);
+    }
+    if (local_time >= sunrisePos['dusk']) {
+        var tomorrow = new Date();
+        var sunrisePos = SunCalc.getTimes(tomorrow.setDate(tomorrow.getDate() + 1), config.latitude, config.longitude);
+         if (local_time < sunrisePos['dawn']) {
+             if (config.debug === true) { self.debug_log(local_time,'Entering time between dusk and dawn'); }
+             self.writeBacklight(config.path_to_backlight,config.night);
+             this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.night);
+         }
+    }
   },
 
   // Write the values to the backlight

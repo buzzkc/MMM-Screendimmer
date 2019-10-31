@@ -25,7 +25,6 @@ Module.register("MMM-Screendimmer",{
             if (payload < 13) payload = 13; //min visible brightness
             this.config.overrideValue = payload;
             this.sendSocketNotification("MMM-Screendimmer_UPDATE_CONFIG", this.config);
-            this.sendNotification("MMM-Screendimmer_CURRENT_VALUE", payload);
         }
         if (notification === "MMM-Screendimmer_RESUME") {
             this.config.override = false;
