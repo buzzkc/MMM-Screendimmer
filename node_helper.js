@@ -6,6 +6,7 @@ var SunCalc = require('suncalc');
 var fs = require('fs');
 
 var config;
+var timer;
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -20,10 +21,11 @@ module.exports = NodeHelper.create({
         if (this.config.override) {
             this.writeBacklight(this.config.path_to_backlight,this.config.overrideValue); //overide immediately
             this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", this.config.overrideValue);
+            clearInterval(this.timer);
         } else {
           this.setDimmer(this);
 
-          setInterval(function(){
+          this.timer = setInterval(function(){
               self.setDimmer(self);
           }, this.config.query_interval);
         }
