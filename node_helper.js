@@ -17,6 +17,7 @@ module.exports = NodeHelper.create({
         if (typeof config.longitude === 'undefined') { throw "Missing longitude configuration"; }
         if (confg.override) {
             self.writeBacklight(config.path_to_backlight,config.overrideValue); //overide immediately
+            this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", config.overrideValue);
         }
         setInterval(function(){
             var local_time = new Date;
