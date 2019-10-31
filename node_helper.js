@@ -24,7 +24,7 @@ module.exports = NodeHelper.create({
           setInterval(function(){
               if(!config.overide) self.setDimmer(config);
           }, config.query_interval);
-        )
+        }
     }
     catch(err) {
         console.log(err);
