@@ -26,7 +26,7 @@ module.exports = NodeHelper.create({
           this.setDimmer(this);
 
           this.timer = setInterval(function(){
-              self.setDimmer(self);
+              self.setDimmer();
           }, this.config.query_interval);
         }
     }
@@ -36,33 +36,33 @@ module.exports = NodeHelper.create({
 
   },
 
-  setDimmer: function(self) {
-    if (!self.config.overide) {
+  setDimmer: function() {
+    if (!this.config.overide) {
       var local_time = new Date;
-      var sunrisePos = SunCalc.getTimes(local_time, self.config.latitude, self.config.longitude);
+      var sunrisePos = SunCalc.getTimes(local_time, this.config.latitude, this.config.longitude);
 
       if (local_time >= sunrisePos['dawn'] && local_time < sunrisePos['sunriseEnd']) {
-          if (self.config.debug === true) { self.debug_log(local_time,'Entering time between dawn and sunriseEd'); }
-          self.writeBacklight(self.config.path_to_backlight,self.config.morning);
-          self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", self.config.morning);
+          if (this.config.debug === true) { this.debug_log(local_time,'Entering time between dawn and sunriseEd'); }
+          this.writeBacklight(this.config.path_to_backlight,this.config.morning);
+          this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", this.config.morning);
       }
       if (local_time >= sunrisePos['sunriseEnd'] && local_time < sunrisePos['sunsetStart']) {
-          if (self.config.debug === true) { self.debug_log(local_time,'Entering time between sunriseEnd and sunsetStart'); }
-          self.writeBacklight(self.config.path_to_backlight,self.config.day);
-          self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", self.config.day);
+          if (this.config.debug === true) { this.debug_log(local_time,'Entering time between sunriseEnd and sunsetStart'); }
+          this.writeBacklight(this.config.path_to_backlight,this.config.day);
+          this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", this.config.day);
       }
       if (local_time >= sunrisePos['sunsetStart'] && local_time < sunrisePos['dusk']) {
-          if (self.config.debug === true) { self.debug_log(local_time, 'Entering time between sunsetStart and dusk'); }
-          self.writeBacklight(self.config.path_to_backlight,self.config.evening);
-          self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", self.config.evening);
+          if (this.config.debug === true) { this.debug_log(local_time, 'Entering time between sunsetStart and dusk'); }
+          this.writeBacklight(this.config.path_to_backlight,this.config.evening);
+          this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", this.config.evening);
       }
       if (local_time >= sunrisePos['dusk']) {
           var tomorrow = new Date();
-          var sunrisePos = SunCalc.getTimes(tomorrow.setDate(tomorrow.getDate() + 1), self.config.latitude, self.config.longitude);
+          var sunrisePos = SunCalc.getTimes(tomorrow.setDate(tomorrow.getDate() + 1), this.config.latitude, this.config.longitude);
            if (local_time < sunrisePos['dawn']) {
-               if (self.config.debug === true) { self.debug_log(local_time,'Entering time between dusk and dawn'); }
-               self.writeBacklight(self.config.path_to_backlight,self.config.night);
-               self.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", self.config.night);
+               if (this.config.debug === true) { this.debug_log(local_time,'Entering time between dusk and dawn'); }
+               this.writeBacklight(this.config.path_to_backlight,this.config.night);
+               this.sendSocketNotification("MMM-Screendimmer_CURRENT_VALUE", this.config.night);
            }
       }
     }
@@ -70,6 +70,7 @@ module.exports = NodeHelper.create({
 
   // Write the values to the backlight
   writeBacklight: function(backlight_file, value) {
+      this.sendSocketNotification("MMM-Screendimmer_Console", value);
       fs.writeFile(backlight_file, value, function(err) {
           if(err) {
               throw(err);
